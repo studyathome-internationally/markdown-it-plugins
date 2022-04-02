@@ -1,0 +1,1 @@
+LaTeX [@latex2e] is a set of macros built atop TeX [@texbook,@latex2e].

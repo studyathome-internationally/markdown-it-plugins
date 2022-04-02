@@ -6,8 +6,7 @@ const Token = require("markdown-it/lib/token");
 const cite = (md, opts) => {
   const [bib, bibKeys] = loadBib(opts);
   md.inline.ruler.push("cite", cite_rule({ ...opts, bib, bibKeys }));
-  md.core.ruler.push("bibliography", bibliography_rule({ ...opts, bib, bibKeys }));
-  // md.renderer.rules.cite = cite_renderer(opts);
+  md.core.ruler.after("inline", "bibliography", bibliography_rule({ ...opts, bib, bibKeys }));
 };
 
 function loadBib(opts) {
@@ -62,13 +61,14 @@ function cite_rule(opts) {
     }
 
     let token = new Token("link_open", "a", 1);
-    token.attrSet("href", `citation-${state.env.citations.list.length}`);
+    const position = state.env.citations.list.findIndex((citation) => citation === result);
+    token.attrSet("href", `#citation-${position + 1}`);
     token.attrSet("class", "citation");
     token.meta = { key: result };
     tokens.push(token);
 
     token = new Token("text", "", 0);
-    token.content = state.env.citations.list.length;
+    token.content = position + 1;
     tokens.push(token);
 
     token = new Token("link_close", "a", -1);
@@ -98,8 +98,7 @@ function bibliography_rule(opts) {
     tokens.push(token);
 
     token = new Token("heading_open", "h2", 1);
-    token.attrSet("id", "bibliography-heading");
-    token.attrSet("class", "bibliography");
+    token.attrSet("id", "bibliography");
     token.markup = "##";
     token.block = true;
     tokens.push(token);
@@ -113,6 +112,7 @@ function bibliography_rule(opts) {
 
     token = new Token("heading_close", "h2", -1);
     token.markup = "##";
+    token.block = true;
     tokens.push(token);
 
     token = new Token("bibliography_list_open", "ul", 1);
@@ -138,8 +138,11 @@ function bibliography_rule(opts) {
         .find(({ entry_key }) => citation === entry_key);
 
       generateTitle(token, bibEntry);
+      generateBracketOpen(token, bibEntry);
       generateAuthors(token, bibEntry);
+      generateSeparator(token, bibEntry);
       generateLicense(token, bibEntry);
+      generateBracketClose(token, bibEntry);
 
       tokens.push(token);
 
@@ -153,57 +156,164 @@ function bibliography_rule(opts) {
   return bibliography;
 }
 
+function generateBracketOpen(token, bibEntry) {
+  if (!bibEntry.fields.author && !bibEntry.unknown_fields.license) return;
+  let tokenChild = new Token("text", "", 0);
+  tokenChild.content = " (";
+  token.children.push(tokenChild);
+}
+
+function generateBracketClose(token, bibEntry) {
+  if (!bibEntry.fields.author && !bibEntry.unknown_fields.license) return;
+  let tokenChild = new Token("text", "", 0);
+  tokenChild.content = ")";
+  token.children.push(tokenChild);
+}
+
+function generateSeparator(token, bibEntry) {
+  if (!bibEntry.fields.author || !bibEntry.unknown_fields.license) return;
+  let tokenChild = new Token("text", "", 0);
+  tokenChild.content = " - ";
+  token.children.push(tokenChild);
+}
+
 function generateTitle(token, bibEntry) {
-  let childToken;
   if (!bibEntry.fields.title) return;
+  let tokenChild;
   const titleUrl =
     bibEntry.unknown_fields.titleurl && bibEntry.unknown_fields.titleurl.length === 1
       ? bibEntry.unknown_fields.titleurl[0].text
       : false;
   if (titleUrl) {
-    childToken = new Token("link_open", "a", 1);
-    childToken.attrSet("href", titleUrl);
-    token.children.push(childToken);
+    tokenChild = new Token("link_open", "a", 1);
+    tokenChild.attrSet("href", titleUrl);
+    token.children.push(tokenChild);
   }
   for (const titleChunk of bibEntry.fields.title) {
     if (titleChunk.type !== "text") continue;
     if (titleChunk.marks) {
       for (const mark of titleChunk.marks) {
-        childToken = new Token("mark_open", mark.type, 1);
-        token.children.push(childToken);
+        tokenChild = new Token("mark_open", mark.type, 1);
+        token.children.push(tokenChild);
       }
     }
-    childToken = new Token("text", "", 0);
-    childToken.content = titleChunk.text;
-    token.children.push(childToken);
+    tokenChild = new Token("text", "", 0);
+    tokenChild.content = titleChunk.text;
+    token.children.push(tokenChild);
     if (titleChunk.marks) {
       for (const mark of titleChunk.marks.reverse()) {
-        childToken = new Token("mark_close", mark.type, -1);
-        token.children.push(childToken);
+        tokenChild = new Token("mark_close", mark.type, -1);
+        token.children.push(tokenChild);
       }
     }
   }
   if (titleUrl) {
-    childToken = new Token("link_close", "a", -1);
-    token.children.push(childToken);
+    tokenChild = new Token("link_close", "a", -1);
+    token.children.push(tokenChild);
   }
-  // token.content = bibEntry.
 }
 
 function generateAuthors(token, bibEntry) {
-  let child = new Token("text", "", 0);
+  if (!bibEntry.fields.author) return;
+  let tokenChild;
+  const authorUrl =
+    bibEntry.unknown_fields.authorurl && bibEntry.unknown_fields.authorurl.length === 1
+      ? bibEntry.unknown_fields.authorurl[0].text
+      : false;
+  if (authorUrl) {
+    tokenChild = new Token("link_open", "a", 1);
+    tokenChild.attrSet("href", authorUrl);
+    token.children.push(tokenChild);
+  }
+  for (const [idx, author] of bibEntry.fields.author.entries()) {
+    const { given, family } = author;
+    for (const givenChunk of given) {
+      if (givenChunk.type !== "text") continue;
+      if (givenChunk.marks) {
+        for (const mark of givenChunk.marks) {
+          tokenChild = new Token("mark_open", mark.type, 1);
+          token.children.push(tokenChild);
+        }
+      }
+      tokenChild = new Token("text", "", 0);
+      tokenChild.content = givenChunk.text;
+      token.children.push(tokenChild);
+      if (givenChunk.marks) {
+        for (const mark of givenChunk.marks.reverse()) {
+          tokenChild = new Token("mark_close", mark.type, -1);
+          token.children.push(tokenChild);
+        }
+      }
+    }
+    if (family) {
+      tokenChild = new Token("text", "", 0);
+      tokenChild.content = " ";
+      token.children.push(tokenChild);
+    }
+    for (const familyChunk of family) {
+      if (familyChunk.type !== "text") continue;
+      if (familyChunk.marks) {
+        for (const mark of familyChunk.marks) {
+          tokenChild = new Token("mark_open", mark.type, 1);
+          token.children.push(tokenChild);
+        }
+      }
+      tokenChild = new Token("text", "", 0);
+      tokenChild.content = familyChunk.text;
+      token.children.push(tokenChild);
+      if (familyChunk.marks) {
+        for (const mark of familyChunk.marks.reverse()) {
+          tokenChild = new Token("mark_close", mark.type, -1);
+          token.children.push(tokenChild);
+        }
+      }
+    }
+    if (idx !== bibEntry.fields.author.length - 1) {
+      tokenChild = new Token("text", "", 0);
+      tokenChild.content = ", ";
+      token.children.push(tokenChild);
+    }
+  }
+  if (authorUrl) {
+    tokenChild = new Token("link_close", "a", -1);
+    token.children.push(tokenChild);
+  }
 }
 
 function generateLicense(token, bibEntry) {
-  let child = new Token("text", "", 0);
+  if (!bibEntry.unknown_fields.license) return;
+  let tokenChild;
+  const licenseUrl =
+    bibEntry.unknown_fields.licenseurl && bibEntry.unknown_fields.licenseurl.length === 1
+      ? bibEntry.unknown_fields.licenseurl[0].text
+      : false;
+  if (licenseUrl) {
+    tokenChild = new Token("link_open", "a", 1);
+    tokenChild.attrSet("href", licenseUrl);
+    token.children.push(tokenChild);
+  }
+  for (const licenseChunk of bibEntry.unknown_fields.license) {
+    if (licenseChunk.type !== "text") continue;
+    if (licenseChunk.marks) {
+      for (const mark of licenseChunk.marks) {
+        tokenChild = new Token("mark_open", mark.type, 1);
+        token.children.push(tokenChild);
+      }
+    }
+    tokenChild = new Token("text", "", 0);
+    tokenChild.content = licenseChunk.text;
+    token.children.push(tokenChild);
+    if (licenseChunk.marks) {
+      for (const mark of licenseChunk.marks.reverse()) {
+        tokenChild = new Token("mark_close", mark.type, -1);
+        token.children.push(tokenChild);
+      }
+    }
+  }
+  if (licenseUrl) {
+    tokenChild = new Token("link_close", "a", -1);
+    token.children.push(tokenChild);
+  }
 }
-
-// function cite_renderer(opts) {
-//   return (tokens, idx, options, env /* , self */) => {
-//     const token = tokens[idx];
-//     const position = env.citations.list.findIndex((citation) => citation === token.meta.key) + 1;
-//     return `<a href="citation-${position}" class="citation">${position}</a>`;
-//   };
-// }
 
 module.exports = cite;
