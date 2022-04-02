@@ -5,6 +5,9 @@
         },
         {
             "path": "packages/markdown-it-cite"
+        },
+        {
+            "path": "packages/markdown-it-list-of-figures"
         }
     ],
     "settings": {}
