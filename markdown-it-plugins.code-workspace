@@ -8,6 +8,9 @@
         },
         {
             "path": "packages/markdown-it-list-of-figures"
+        },
+        {
+            "path": "packages/markdown-it-list-of-tables"
         }
     ],
     "settings": {}
