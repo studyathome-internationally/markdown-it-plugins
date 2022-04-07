@@ -26,7 +26,7 @@ describe("basic functionality", () => {
     `);
   });
 
-  it("list of figures", () => {
+  it("list of figures with markup", () => {
     const text = readFileSync(join(__dirname, "__cases__", "basic.2.md"), "utf8");
     const md = new MarkdownIt({ xhtmlOut: true, html: true });
     md.use(MarkdownItPluginListOfFigures);
@@ -47,7 +47,7 @@ describe("basic functionality", () => {
     `);
   });
 
-  it("list of figures", () => {
+  it("list of figures with markup", () => {
     const text = readFileSync(join(__dirname, "__cases__", "basic.3.md"), "utf8");
     const md = new MarkdownIt({ xhtmlOut: true, html: true });
     md.use(MarkdownItPluginListOfFigures);

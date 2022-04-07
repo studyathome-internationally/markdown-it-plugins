@@ -15,11 +15,12 @@
   "license": "GPL-3.0",
   "main": "index.js",
   "directories": {
-    "lib": "lib",
     "test": "__tests__"
   },
   "files": [
-    "lib"
+    "README.md",
+    "index.js",
+    "LICENSE"
   ],
   "repository": {
     "type": "git",
