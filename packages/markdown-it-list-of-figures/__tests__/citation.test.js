@@ -13,12 +13,9 @@ describe("citations", () => {
     expect(result).toMatchInlineSnapshot(`
     <h1>Hello World</h1>
     <p>See <a href="#the-stormtroopocat" class="figure-citation">Figure 1</a>.</p>
-    <p>
-    <figure id="the-stormtroopocat">
-      <img src="https://octodex.github.com/images/stormtroopocat.jpg" alt="Stormtroopocat" title="The Stormtroopocat" />
+    <figure id="the-stormtroopocat"><img src="https://octodex.github.com/images/stormtroopocat.jpg" alt="Stormtroopocat" title="The Stormtroopocat" />
       <figcaption>Figure 1: The Stormtroopocat</figcaption>
     </figure>
-    </p>
     <hr class="list-of-figures" />
     <h2 id="list-of-figures">List of Figures</h2>
     <ul class="list-of-figures">
