@@ -12,8 +12,8 @@ function figure_citation_rule(opts) {
     if (silent) return false;
     const { tokens, posMax: max, pos: start } = state;
 
-    // should be at least 5 chars - "<<x>>"
-    if (start + 4 > max) return false;
+    // should be at least 9 chars - "<<fig:x>>"
+    if (start + 8 > max) return false;
 
     if (state.src.charCodeAt(start) !== 0x3c /* < */) return false;
     if (state.src.charCodeAt(start + 1) !== 0x3c /* < */) return false;
@@ -40,15 +40,10 @@ function figure_citation_rule(opts) {
       return false;
     }
 
-    if (state.pending) {
-      state.pushPending();
-    }
-
     let figure = state.src.slice(start + 6, pos);
-    let token = new Token("figure_citation", "", 0);
+    let token = state.push("figure_citation", "", 0);
     token.content = figure;
     token.meta = { id: figure };
-    tokens.push(token);
 
     state.pos = pos + 2;
     state.posMax = max;
@@ -60,6 +55,7 @@ function figure_citation_rule(opts) {
 function figure_citation_renderer(opts) {
   return (tokens, idx, options, env /* , self */) => {
     const token = tokens[idx];
+    if (token.hidden) return "";
     const id = token.meta.id;
 
     if (id && env && env.figures && env.figures.list) {
@@ -77,70 +73,18 @@ function figure_citation_renderer(opts) {
 function figure_rule(opts) {
   const figure = (state) => {
     const tokens = state.tokens;
-    for (const token of tokens) {
-      if (token.type !== "inline") continue;
-      for (let idx = 0; idx < token.children.length; idx++) {
-        const tokenChild = token.children[idx];
-        if (tokenChild.type !== "image") continue;
-        const titleContent = tokenChild.attrGet("title");
-        if (!titleContent) continue;
+    for (const currentToken of tokens) {
+      if (currentToken.type !== "inline") continue;
+      for (let idx = 0; idx < currentToken.children.length; idx++) {
+        const imageToken = currentToken.children[idx];
+        if (!isValidImageToken(imageToken)) continue;
 
-        let id = slugify(titleContent);
-        let title = titleContent;
+        const [id, title] = getFigureData(imageToken);
+        saveFigure(state, { id, title });
 
-        if (titleContent.split("#").length === 2) {
-          [id, title] = titleContent.split("#");
-        }
+        const figureTokens = createFigureTokens(imageToken, { id, title }, state);
 
-        if (!state.env.figures) {
-          state.env.figures = {};
-        }
-
-        if (!state.env.figures.list) {
-          state.env.figures.list = [];
-        }
-
-        if (!state.env.figures.list.includes(id)) {
-          state.env.figures.list.push({
-            id,
-            title,
-          });
-        }
-
-        const figureTokens = [];
-        let token2 = new Token("figure_open", "figure", 1);
-        token2.attrSet("id", id);
-        token2.block = true;
-        figureTokens.push(token2);
-
-        const titleTokens = state.md.parseInline(title, state.env).find(({ type }) => "inline" === type);
-        let newTitle = titleTokens.children
-          .filter(({ type }) => "text" === type)
-          .map(({ content }) => content)
-          .join("");
-
-        tokenChild.attrSet("title", newTitle);
-        figureTokens.push(tokenChild);
-
-        token2 = new Token("figure_caption_open", "figcaption", 1);
-        figureTokens.push(token2);
-
-        const position = state.env.figures.list.findIndex((figure) => figure.id === id);
-        const label = frontmatter(state, "label", "Figure");
-        token2 = new Token("text", "", 0);
-        token2.content = label + " " + (position + 1) + ": ";
-        figureTokens.push(token2);
-
-        figureTokens.push(...titleTokens.children);
-
-        token2 = new Token("figure_caption_close", "figcaption", -1);
-        figureTokens.push(token2);
-
-        token2 = new Token("figure_close", "figure", -1);
-        token2.block = true;
-        figureTokens.push(token2);
-
-        token.children.splice(idx, 1, ...figureTokens);
+        currentToken.children.splice(idx, 1, ...figureTokens);
         idx += figureTokens.length - 1;
       }
     }
@@ -155,73 +99,23 @@ function figure_list_rule(opts) {
     }
 
     const tokens = state.tokens;
-    let token, tokenChild;
+    let token;
 
-    token = new Token("hr", "hr", 0);
-    token.attrSet("class", "list-of-figures");
-    token.markup = "---";
-    token.block = true;
+    token = createListSeparator();
     tokens.push(token);
 
-    token = new Token("heading_open", "h2", 1);
-    token.attrSet("id", "list-of-figures");
-    token.markup = "##";
-    token.block = true;
-    tokens.push(token);
+    token = createHeadingTokens(state);
+    tokens.push(...token);
 
-    token = new Token("inline", "", 0);
-    tokenChild = new Token("text", "", 0);
-    const title = frontmatter(state, "title", "List of Figures");
-    tokenChild.content = title;
-    token.children = [tokenChild];
-    token.content = title;
-    tokens.push(token);
-
-    token = new Token("heading_close", "h2", -1);
-    token.markup = "##";
-    token.block = true;
-    tokens.push(token);
-
-    token = new Token("list_of_figures_open", "ul", 1);
-    token.attrSet("class", "list-of-figures");
-    token.block = true;
+    token = createListOpening();
     tokens.push(token);
 
     for (const [idx, figure] of state.env.figures.list.entries()) {
-      token = new Token("figure_item_open", "li", 1);
-      token.block = true;
-      tokens.push(token);
-
-      token = new Token("inline", "", 0);
-      token.children = [];
-
-      tokenChild = new Token("link_open", "a", 1);
-      tokenChild.attrSet("href", `#${figure.id}`);
-      token.children.push(tokenChild);
-
-      tokenChild = new Token("text", "", 0);
-      const label = frontmatter(state, "label", "Figure");
-      tokenChild.content = label + " " + (idx + 1);
-      token.children.push(tokenChild);
-
-      tokenChild = new Token("link_close", "a", -1);
-      token.children.push(tokenChild);
-
-      tokenChild = new Token("text", "", 0);
-      tokenChild.content = ": ";
-      token.children.push(tokenChild);
-
-      const titleTokens = state.md.parseInline(figure.title, state.env).find(({ type }) => "inline" === type);
-      token.children.push(...titleTokens.children);
-
-      tokens.push(token);
-
-      token = new Token("figure_item_close", "li", -1);
-      token.block = true;
-      tokens.push(token);
+      token = createListItemTokens(state, figure, idx + 1, { level: 1 });
+      tokens.push(...token);
     }
 
-    token = new Token("list_of_figures_close", "ul", -1);
+    token = createListClosing();
     tokens.push(token);
   };
   return figure_list;
@@ -246,6 +140,214 @@ function frontmatter(state, key, alternative) {
     state.env.frontmatter[frontmatterKey][key]
     ? state.env.frontmatter[frontmatterKey][key]
     : alternative;
+}
+
+function isValidImageToken(token) {
+  return token.type === "image" && token.attrGet("title");
+}
+
+function getFigureData(token) {
+  const titleContent = token.attrGet("title");
+  let id = slugify(titleContent);
+  let title = titleContent;
+
+  if (titleContent.split("#").length === 2) {
+    [id, title] = titleContent.split("#");
+  }
+  return [id, title];
+}
+
+function saveFigure(state, { id, title }) {
+  if (!state.env.figures) {
+    state.env.figures = {};
+  }
+
+  if (!state.env.figures.list) {
+    state.env.figures.list = [];
+  }
+
+  if (!state.env.figures.list.includes(id)) {
+    state.env.figures.list.push({
+      id,
+      title,
+    });
+  }
+}
+
+function createFigureTokens(image, { id, title }, state) {
+  const tokens = [];
+  let token;
+  let level = image.level;
+
+  token = new Token("figure_open", "figure", 1);
+  token.attrSet("id", id);
+  token.level = level++;
+  token.block = true;
+  tokens.push(token);
+
+  let captionTokens = [];
+  state.md.inline.parse(title, state.md, state.env, captionTokens);
+  // const captionTokens = state.md.parseInline(title, state.env).find(({ type }) => "inline" === type);
+
+  // Update image title with text only.
+  // token = cloneToken(image);
+  const titleText = captionTokens
+    .filter(({ type }) => "text" === type)
+    .map(({ content }) => content)
+    .join("");
+  image.attrSet("title", titleText);
+  image.level = level;
+  tokens.push(image);
+
+  token = new Token("figure_caption_open", "figcaption", 1);
+  token.level = level++;
+  tokens.push(token);
+
+  const position = state.env.figures.list.findIndex((figure) => figure.id === id);
+  const label = frontmatter(state, "label", "Figure");
+
+  token = new Token("text", "", 0);
+  token.level = level;
+  token.content = `${label} ${position + 1}: `;
+  tokens.push(token);
+
+  captionTokens.forEach((v) => (v.level += level));
+  tokens.push(...captionTokens);
+
+  token = new Token("figure_caption_close", "figcaption", -1);
+  token.level = level--;
+  tokens.push(token);
+
+  token = new Token("figure_close", "figure", -1);
+  token.level = level;
+  token.block = true;
+  tokens.push(token);
+
+  return tokens;
+}
+
+function cloneToken(token) {
+  return JSON.parse(JSON.stringify(token));
+}
+
+function createListSeparator({ block = true, className = "list-of-figures", level = 0 } = {}) {
+  const token = new Token("hr", "hr", 0);
+  token.attrSet("class", className);
+  token.markup = "---";
+  token.block = block;
+  token.level = level;
+  return token;
+}
+
+function createHeadingTokens(state, { block = true, level = 0 } = {}) {
+  const headingLevel = 2;
+  const headingId = "list-of-figures";
+  const tokens = [];
+  let token, tokenChild;
+
+  token = new Token("heading_open", `h${headingLevel}`, 1);
+  token.attrSet("id", headingId);
+  token.markup = "#".repeat(headingLevel);
+  token.block = block;
+  token.level = level++;
+  tokens.push(token);
+
+  const title = frontmatter(state, "title", "List of Figures");
+  tokenChild = new Token("text", "", 0);
+  tokenChild.level = 0;
+  tokenChild.content = title;
+
+  token = new Token("inline", "", 0);
+  token.level = level;
+  token.content = title;
+  token.children = [tokenChild];
+  tokens.push(token);
+
+  token = new Token("heading_close", `h${headingLevel}`, -1);
+  token.markup = "#".repeat(headingLevel);
+  token.block = block;
+  token.level = level--;
+  tokens.push(token);
+
+  return tokens;
+}
+
+function createListOpening({ block = true, className = "list-of-figures", level = 0 } = {}) {
+  const token = new Token("list_of_figures_open", "ul", 1);
+  token.attrSet("class", className);
+  token.block = block;
+  token.level = level;
+  token.markup = "*";
+  return token;
+}
+
+function createListClosing({ block = true, level = 0 } = {}) {
+  const token = new Token("list_of_figures_close", "ul", -1);
+  token.block = block;
+  token.level = level;
+  token.markup = "*";
+  return token;
+}
+
+function createListItemTokens(state, figure, position, { block = true, level = 0 } = {}) {
+  const tokens = [];
+  let token, tokenChild;
+  const label = frontmatter(state, "label", "Figure");
+
+  token = new Token("figure_item_open", "li", 1);
+  token.level = level++;
+  token.markup = "*";
+  token.block = block;
+  tokens.push(token);
+
+  token = new Token("paragraph_open", "p", 1);
+  token.level = level++;
+  token.block = block;
+  tokens.push(token);
+
+  token = new Token("inline", "", 0);
+  token.level = level;
+  token.block = block;
+  token.content = `${label} ${position}: ${figure.title}`;
+  token.children = [];
+
+  let levelChild = 0;
+  tokenChild = new Token("link_open", "a", 1);
+  tokenChild.level = levelChild++;
+  tokenChild.attrSet("href", `#${figure.id}`);
+  token.children.push(tokenChild);
+
+  tokenChild = new Token("text", "", 0);
+  tokenChild.level = levelChild;
+  tokenChild.content = `${label} ${position}`;
+  token.children.push(tokenChild);
+
+  tokenChild = new Token("link_close", "a", -1);
+  tokenChild.level = levelChild--;
+  token.children.push(tokenChild);
+
+  tokenChild = new Token("text", "", 0);
+  tokenChild.level = levelChild;
+  tokenChild.content = ": ";
+  token.children.push(tokenChild);
+
+  let captionTokens = [];
+  state.md.inline.parse(figure.title, state.md, state.env, captionTokens);
+  token.children.push(...captionTokens);
+
+  tokens.push(token);
+
+  token = new Token("paragraph_close", "p", -1);
+  token.level = --level;
+  token.block = block;
+  tokens.push(token);
+
+  token = new Token("figure_item_close", "li", -1);
+  token.level = --level;
+  token.block = block;
+  tokens.push(token);
+
+  return tokens;
 }
 
 module.exports = list_of_figures;
