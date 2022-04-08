@@ -22,7 +22,9 @@ describe("citations", () => {
     <hr class="list-of-figures" />
     <h2 id="list-of-figures">List of Figures</h2>
     <ul class="list-of-figures">
-      <li><a href="#the-stormtroopocat">Figure 1</a>: The Stormtroopocat</li>
+      <li>
+        <p><a href="#the-stormtroopocat">Figure 1</a>: The Stormtroopocat</p>
+      </li>
     </ul>
     `);
   });
