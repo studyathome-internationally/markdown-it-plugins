@@ -1,0 +1,1 @@
+„Behinderte“ sind Menschen in allen Altersgruppen, die durch einen angeborenen oder erworbenen gesundheitlichen Schaden in der Ausübung der im entsprechenden Lebensalter üblichen Funktionen beeinträchtigt sind [@brockhaus:1994].

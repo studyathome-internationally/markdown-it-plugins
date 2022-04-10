@@ -1,0 +1,1 @@
+Es wäre daher ein vollkommen falscher Blickwinkel, sie pauschal als Behinderte oder Patienten und nicht als Konsumenten zu betrachten [@charness:1998].
