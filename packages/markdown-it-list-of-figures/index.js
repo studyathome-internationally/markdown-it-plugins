@@ -1,3 +1,4 @@
+const { isSpace } = require("markdown-it/lib/common/utils");
 const Token = require("markdown-it/lib/token");
 
 const list_of_figures = (md, opts) => {
@@ -24,7 +25,7 @@ function figure_citation_rule(opts) {
 
     let pos = start + 6;
     for (; pos < max - 1; pos++) {
-      if (state.src.charCodeAt(pos) === 0x20 /*   */) {
+      if (isSpace(state.src.charCodeAt(pos))) {
         return false;
       }
       if (state.src.charCodeAt(pos) === 0x0a /* \n */) {
@@ -36,7 +37,7 @@ function figure_citation_rule(opts) {
     }
 
     // no empty references
-    if (pos === start + 2) {
+    if (pos === start + 6) {
       return false;
     }
 
