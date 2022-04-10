@@ -408,7 +408,7 @@ function createListItemTokens(state, table, position, { block = true, level = 0 
 
   token = new Token("inline", "", 0);
   token.level = level;
-  token.block = block;
+  token.block = false;
   token.content = `${label} ${position}: ${table.title}`;
   token.children = [];
 
