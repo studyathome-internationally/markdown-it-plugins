@@ -36,7 +36,9 @@ describe("basic functionality", () => {
       <hr class="list-of-tables" />
       <h2 id="list-of-tables">List of Tables</h2>
       <ul class="list-of-tables">
-        <li><a href="#client-overview">Table 1</a>: Client overview</li>
+        <li>
+          <p><a href="#client-overview">Table 1</a>: Client overview</p>
+        </li>
       </ul>
     `);
   });
@@ -72,7 +74,9 @@ describe("basic functionality", () => {
       <hr class="list-of-tables" />
       <h2 id="list-of-tables">List of Tables</h2>
       <ul class="list-of-tables">
-        <li><a href="#client-overview">Table 1</a>: Client <strong>overview</strong></li>
+        <li>
+          <p><a href="#client-overview">Table 1</a>: Client <strong>overview</strong></p>
+        </li>
       </ul>
     `);
   });
@@ -108,7 +112,9 @@ describe("basic functionality", () => {
       <hr class="list-of-tables" />
       <h2 id="list-of-tables">List of Tables</h2>
       <ul class="list-of-tables">
-        <li><a href="#client-overview">Table 1</a>: <em>Client</em> <strong>overview</strong></li>
+        <li>
+          <p><a href="#client-overview">Table 1</a>: <em>Client</em> <strong>overview</strong></p>
+        </li>
       </ul>
     `);
   });
@@ -152,7 +158,9 @@ describe("basic functionality", () => {
       <hr class="list-of-tables" />
       <h2 id="list-of-tables">List of Tables</h2>
       <ul class="list-of-tables">
-        <li><a href="#client-overview">Table 1</a>: Client overview</li>
+        <li>
+          <p><a href="#client-overview">Table 1</a>: Client overview</p>
+        </li>
       </ul>
     `);
   });

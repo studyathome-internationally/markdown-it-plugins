@@ -37,7 +37,9 @@ describe("citations", () => {
       <hr class="list-of-tables" />
       <h2 id="list-of-tables">List of Tables</h2>
       <ul class="list-of-tables">
-        <li><a href="#client-overview">Table 1</a>: Client overview</li>
+        <li>
+          <p><a href="#client-overview">Table 1</a>: Client overview</p>
+        </li>
       </ul>
     `);
   });
