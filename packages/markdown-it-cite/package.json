@@ -1,6 +1,6 @@
 {
   "name": "markdown-it-cite",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.24+941df3f",
   "description": "MarkdownIt Plugin for LaTeX like citation",
   "keywords": [
     "markdown",
@@ -39,5 +39,6 @@
   "dependencies": {
     "biblatex-csl-converter": "^2.0.4",
     "markdown-it": "^12.3.2"
-  }
+  },
+  "gitHead": "941df3f33e3ea5a604ed29fe984395c2c5120eea"
 }

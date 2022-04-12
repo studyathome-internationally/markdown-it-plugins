@@ -1,6 +1,6 @@
 {
   "name": "markdown-it-math-jax",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.24+941df3f",
   "description": "Math support for markdown-it with MathJax3",
   "keywords": [
     "markdown",
@@ -41,5 +41,6 @@
   "devDependencies": {
     "jest": "^27.5.1",
     "jest-serializer-vue": "^2.0.2"
-  }
+  },
+  "gitHead": "941df3f33e3ea5a604ed29fe984395c2c5120eea"
 }
