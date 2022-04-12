@@ -1,6 +1,6 @@
 {
   "name": "markdown-it-cite",
-  "version": "0.0.1-alpha.24+941df3f",
+  "version": "0.0.1",
   "description": "MarkdownIt Plugin for LaTeX like citation",
   "keywords": [
     "markdown",

@@ -1,6 +1,6 @@
 {
   "name": "markdown-it-list-of-tables",
-  "version": "0.0.1-alpha.24+941df3f",
+  "version": "0.0.1",
   "description": "MarkdownIt Plugin for list of tables",
   "keywords": [
     "markdown",
