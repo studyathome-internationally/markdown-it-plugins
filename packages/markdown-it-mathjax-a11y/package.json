@@ -1,5 +1,5 @@
 {
-  "name": "markdown-it-math-jax",
+  "name": "markdown-it-mathjax-a11y",
   "version": "0.0.1-alpha.24+941df3f",
   "description": "Math support for markdown-it with MathJax3",
   "keywords": [

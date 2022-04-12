@@ -13,7 +13,7 @@
             "path": "packages/markdown-it-list-of-tables"
         },
         {
-            "path": "packages/markdown-it-math-jax"
+            "path": "packages/markdown-it-mathjax-a11y"
         }
     ],
     "settings": {}
