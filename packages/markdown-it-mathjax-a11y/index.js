@@ -1,24 +1,29 @@
-const { mathjax } = require("mathjax-full/js/mathjax.js");
-const { TeX } = require("mathjax-full/js/input/tex.js");
-const { SVG } = require("mathjax-full/js/output/svg.js");
-const { liteAdaptor } = require("mathjax-full/js/adaptors/liteAdaptor.js");
-const { RegisterHTMLHandler } = require("mathjax-full/js/handlers/html.js");
-const { AssistiveMmlHandler } = require("mathjax-full/js/a11y/assistive-mml.js");
-const { AllPackages } = require("mathjax-full/js/input/tex/AllPackages.js");
-const juice = require("juice/client");
+// const { mathjax } = require("mathjax-full/js/mathjax.js");
+// const { TeX } = require("mathjax-full/js/input/tex.js");
+// const { CHTML } = require("mathjax-full/js/output/chtml.js");
+// const { SVG } = require("mathjax-full/js/output/svg.js");
+// const { liteAdaptor } = require("mathjax-full/js/adaptors/liteAdaptor.js");
+// const { RegisterHTMLHandler } = require("mathjax-full/js/handlers/html.js");
+// const { AssistiveMmlHandler } = require("mathjax-full/js/a11y/assistive-mml.js");
+// // const { ComplexityHandler } = require("mathjax-full/js/a11y/complexity.js");
+// require("mathjax-full/js/a11y/sre-node");
+// const { ExplorerHandler } = require("mathjax-full/js/a11y/explorer.js");
+// // const { sreReady } = require("mathjax-full/js/a11y/sre.js");
+// const { AllPackages } = require("mathjax-full/js/input/tex/AllPackages.js");
+// const juice = require("juice/client");
 
-/* This version is based on: https://github.com/tani/markdown-it-mathjax3 */
+// const MATHJAX_DEFAULT_FONT_URL = "https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/output/chtml/fonts/woff-v2/";
 
 const math_jax = (md, opts) => {
   const documentOptions = {
-    InputJax: new TeX({ packages: AllPackages }),
-    // OutputJax: new CHTML({ fontURL: MATHJAX_DEFAULT_FONT_URL }),
-    // OutputJax: new CHTML(),
-    OutputJax: new SVG({ fontCache: "none" }),
-    // enableAssistiveMml: true,
+    // InputJax: new TeX({ packages: AllPackages }),
+    // // OutputJax: new CHTML({ fontURL: MATHJAX_DEFAULT_FONT_URL }),
+    // // OutputJax: new CHTML(),
+    // OutputJax: new SVG({ fontCache: "none" }),
+    // // enableAssistiveMml: true,
   };
   const convertOptions = {
-    display: false,
+    // display: false,
   };
 
   md.inline.ruler.after("escape", "math_inline", math_inline_rule(opts));
@@ -172,7 +177,7 @@ function math_block_rule(opts) {
 function math_inline_renderer(opts, documentOptions, convertOptions) {
   return (tokens, idx, options, env /* , self */) => {
     convertOptions.display = false;
-    return renderMath(tokens[idx].content, documentOptions, convertOptions).replace(
+    return renderMathInline(tokens[idx].content, documentOptions, convertOptions).replace(
       "<mjx-container",
       "<mjx-container v-pre"
     );
@@ -182,7 +187,7 @@ function math_inline_renderer(opts, documentOptions, convertOptions) {
 function math_block_renderer(opts, documentOptions, convertOptions) {
   return (tokens, idx, options, env /* , self */) => {
     convertOptions.display = true;
-    return renderMath(tokens[idx].content, documentOptions, convertOptions).replace(
+    return renderMathBlock(tokens[idx].content, documentOptions, convertOptions).replace(
       "<mjx-container",
       "<mjx-container v-pre"
     );
@@ -219,13 +224,38 @@ function isValidDelim(state, pos) {
 }
 
 function renderMath(content, documentOptions, convertOptions) {
-  const adaptor = liteAdaptor();
-  const handler = RegisterHTMLHandler(adaptor);
-  const aHandler = AssistiveMmlHandler(handler);
-  const mathDocument = mathjax.document(content, documentOptions);
-  const html = adaptor.outerHTML(mathDocument.convert(content, convertOptions));
-  const stylesheet = adaptor.outerHTML(documentOptions.OutputJax.styleSheet(mathDocument));
-  return juice(html + stylesheet);
+  // console.log("DUMMY", content);
+  return "<p>" + content + "</p>";
+  // const adaptor = liteAdaptor();
+  // const handler = RegisterHTMLHandler(adaptor);
+  // const aHandler = AssistiveMmlHandler(handler);
+  // mathjax.asyncLoad = () => {
+  //   const eHandler = ExplorerHandler(handler);
+  // };
+  // mathjax.asyncLoad = global.sre.Engine.isReady;
+  // mathjax.asyncLoad(() => {
+  //   const eHandler = ExplorerHandler(handler);
+  // });
+  // sreReady(() => {
+  //   const eHandler = ExplorerHandler(handler);
+  // });
+  // const cHandler = ComplexityHandler(handler);
+  // console.log("DUMMY", global.sre.Engine);
+  // global.sre.Engine.isReady(() => {
+  //   const cHandler = ComplexityHandler(handler);
+  // });
+  // const mathDocument = mathjax.document(content, documentOptions);
+  // const html = adaptor.outerHTML(mathDocument.convert(content, convertOptions));
+  // const stylesheet = adaptor.outerHTML(documentOptions.OutputJax.styleSheet(mathDocument));
+  // return juice(html + stylesheet);
+}
+
+function renderMathInline(content, documentOptions, convertOptions) {
+  return "<span v-pre><p>\\(" + content + "\\)</p></span>";
+}
+
+function renderMathBlock(content, documentOptions, convertOptions) {
+  return "<div v-pre><p>\\[" + content + "\\]</p></div>";
 }
 
 module.exports = math_jax;
