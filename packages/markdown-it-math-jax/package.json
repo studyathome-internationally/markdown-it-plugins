@@ -1,0 +1,45 @@
+{
+  "name": "markdown-it-math-jax",
+  "version": "0.0.0",
+  "description": "Math support for markdown-it with MathJax3",
+  "keywords": [
+    "markdown",
+    "markdown-it",
+    "markdown-it-plugin",
+    "math",
+    "MathJax",
+    "LaTeX"
+  ],
+  "author": "Alija Sabic <sabic.alija@gmail.com>",
+  "homepage": "https://github.com/studyathome-internationally/markdown-it-plugins/tree/master/packages/markdown-it-math-jax",
+  "license": "GPL-3.0",
+  "main": "index.js",
+  "directories": {
+    "test": "__tests__"
+  },
+  "files": [
+    "README.md",
+    "index.js",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/studyathome-internationally/markdown-it-plugins.git"
+  },
+  "scripts": {
+    "test": "jest --config=jest.config.js",
+    "test:update": "yarn test --updateSnapshot"
+  },
+  "bugs": {
+    "url": "https://github.com/studyathome-internationally/markdown-it-plugins/issues"
+  },
+  "dependencies": {
+    "juice": "^8.0.0",
+    "markdown-it": "^12.3.2",
+    "mathjax-full": "^3.2.0"
+  },
+  "devDependencies": {
+    "jest": "^27.5.1",
+    "jest-serializer-vue": "^2.0.2"
+  }
+}

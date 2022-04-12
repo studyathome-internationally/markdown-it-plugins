@@ -11,6 +11,9 @@
         },
         {
             "path": "packages/markdown-it-list-of-tables"
+        },
+        {
+            "path": "packages/markdown-it-math-jax"
         }
     ],
     "settings": {}
