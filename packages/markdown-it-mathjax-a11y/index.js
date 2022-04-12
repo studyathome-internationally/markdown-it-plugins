@@ -2,17 +2,10 @@ const { mathjax } = require("mathjax-full/js/mathjax.js");
 const { TeX } = require("mathjax-full/js/input/tex.js");
 const { SVG } = require("mathjax-full/js/output/svg.js");
 const { liteAdaptor } = require("mathjax-full/js/adaptors/liteAdaptor.js");
-// const { browserAdaptor } = require("mathjax-full/js/adaptors/browserAdaptor.js");
-// const { jsdomAdaptor } = require("mathjax-full/js/adaptors/jsdomAdaptor");
 const { RegisterHTMLHandler } = require("mathjax-full/js/handlers/html.js");
 const { AssistiveMmlHandler } = require("mathjax-full/js/a11y/assistive-mml.js");
-// const { LazyHandler } = require("mathjax-full/js/ui/lazy/LazyHandler.js");
-const { MenuHandler } = require("mathjax-full/js/ui/menu/MenuHandler.js");
 const { AllPackages } = require("mathjax-full/js/input/tex/AllPackages.js");
 const juice = require("juice/client");
-// const { JSDOM } = require("jsdom");
-
-// require("mathjax-full/js/ui/menu/")
 
 // const MATHJAX_DEFAULT_FONT_URL = "https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/output/chtml/fonts/woff-v2/";
 
@@ -228,12 +221,8 @@ function isValidDelim(state, pos) {
 
 function renderMath(content, documentOptions, convertOptions) {
   const adaptor = liteAdaptor();
-  // const adaptor = browserAdaptor();
-  // const adaptor = jsdomAdaptor(JSDOM);
   const handler = RegisterHTMLHandler(adaptor);
-  const aHandler = AssistiveMmlHandler(handler);
-  // const lHandler = LazyHandler(handler);
-  // const mHandler = MenuHandler(handler);
+  AssistiveMmlHandler(handler);
   const mathDocument = mathjax.document(content, documentOptions);
   const html = adaptor.outerHTML(mathDocument.convert(content, convertOptions));
   const stylesheet = adaptor.outerHTML(documentOptions.OutputJax.styleSheet(mathDocument));
