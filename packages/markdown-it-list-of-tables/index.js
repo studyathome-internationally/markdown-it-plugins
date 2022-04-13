@@ -235,10 +235,12 @@ function injectFigureOpen(tokens, tableOpenPos, tableClosePos, id) {
 }
 
 function injectFigureCaption(state, table, tokens, tableClosePos) {
-  replaceWithFigureCaptionOpen(tokens, tableClosePos + 1);
-  injectTableLabel(state, table, tokens, tableClosePos + 2);
-  processTableCaption(tokens, tableClosePos + 2);
-  replaceWithFigureCaptionClose(tokens, tableClosePos + 3);
+  injectFigureCaptionOpen(tokens, tableClosePos);
+  // replaceWithFigureCaptionOpen(tokens, tableClosePos + 1);
+  injectTableLabel(state, table, tokens, tableClosePos + 3);
+  processTableCaption(tokens, tableClosePos + 3);
+  injectFigureCaptionClose(tokens, tableClosePos);
+  // replaceWithFigureCaptionClose(tokens, tableClosePos + 3);
 
   // let token = createFigureCaptionToken(state, table, position + 1, { level: 0 });
   // tokens.splice(idx + 1, 3, ...token);
@@ -247,7 +249,26 @@ function injectFigureCaption(state, table, tokens, tableClosePos) {
 function injectFigureClose(tokens, tableClosePos) {
   const tableClose = tokens[tableClosePos];
   const token = createFigureClose({ block: tableClose.block, level: tableClose.level });
-  tokens.splice(tableClosePos + 4, 0, token);
+  tokens.splice(tableClosePos + 6, 0, token);
+}
+
+function injectFigureCaptionOpen(tokens, tableClosePos) {
+  let token = new Token("figure_caption_open", "figcaption", 1);
+  token.block = true;
+  token.level = tokens[tableClosePos].level;
+  tokens.splice(tableClosePos + 1, 0, token);
+
+  // token = new Token("paragraph_open", "p", 1);
+  // token.block = true;
+  // token.level * tokens[tableClosePos].level + 1;
+  // tokens.splice(tableClosePos + 3, 0, token);
+}
+
+function injectFigureCaptionClose(tokens, tableClosePos) {
+  let token = new Token("figure_caption_close", "figcaption", -1);
+  token.block = true;
+  token.level = tokens[tableClosePos].level - 1;
+  tokens.splice(tableClosePos + 5, 0, token);
 }
 
 function replaceWithFigureCaptionOpen(tokens, idx) {
@@ -259,15 +280,38 @@ function replaceWithFigureCaptionOpen(tokens, idx) {
 }
 
 function injectTableLabel(state, table, tokens, idx) {
+  const labelTokens = [];
   const label = frontmatter(state, "label", "Table");
   const position = state.env.tables.list.findIndex(({ id }) => table.id === id);
-  const token = new Token("text", "", 0);
-  token.content = label + " " + (position + 1) + ": ";
-  tokens[idx].children.unshift(token);
+
+  let token = new Token("table_label_open", "span", 1);
+  token.block = false;
+  token.level = 0;
+  token.meta = { label, position: position + 1 };
+  labelTokens.push(token);
+
+  token = new Token("text", "", 0);
+  token.block = false;
+  token.level = 1;
+  token.content = `${label} ${position + 1}`;
+  labelTokens.push(token);
+
+  token = new Token("table_label_close", "span", -1);
+  token.block = false;
+  token.level = 0;
+  labelTokens.push(token);
+
+  token = new Token("text", "", 0);
+  token.block = false;
+  token.level = 0;
+  token.content = ": ";
+  labelTokens.push(token);
+
+  tokens[idx].children.unshift(...labelTokens);
 }
 
 function processTableCaption(tokens, idx) {
-  const caption = tokens[idx].children[1];
+  const caption = tokens[idx].children[4];
   if (caption.content.split("#").length === 2) {
     caption.content = caption.content.split("#")[1];
   } else {
