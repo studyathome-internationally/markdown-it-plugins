@@ -13,7 +13,9 @@ describe("basic functionality", () => {
     expect(result).toMatchInlineSnapshot(`
     <h1>Hello World</h1>
     <figure id="the-stormtroopocat"><img src="https://octodex.github.com/images/stormtroopocat.jpg" alt="Stormtroopocat" title="The Stormtroopocat" />
-      <figcaption>Figure 1: The Stormtroopocat</figcaption>
+      <figcaption>
+        <p><span>Figure 1</span>: The Stormtroopocat</p>
+      </figcaption>
     </figure>
     <hr class="list-of-figures" />
     <h2 id="list-of-figures">List of Figures</h2>
@@ -33,7 +35,9 @@ describe("basic functionality", () => {
     expect(result).toMatchInlineSnapshot(`
     <h1>Hello World</h1>
     <figure id="the-stormtroopocat"><img src="https://octodex.github.com/images/stormtroopocat.jpg" alt="Stormtroopocat" title="The Stormtroopocat" />
-      <figcaption>Figure 1: The <strong>Stormtroopocat</strong></figcaption>
+      <figcaption>
+        <p><span>Figure 1</span>: The <strong>Stormtroopocat</strong></p>
+      </figcaption>
     </figure>
     <hr class="list-of-figures" />
     <h2 id="list-of-figures">List of Figures</h2>
@@ -53,7 +57,9 @@ describe("basic functionality", () => {
     expect(result).toMatchInlineSnapshot(`
     <h1>Hello World</h1>
     <figure id="the-stormtroopocat"><img src="https://octodex.github.com/images/stormtroopocat.jpg" alt="Stormtroopocat" title="The Stormtroopocat" />
-      <figcaption>Figure 1: <em>The</em> <strong>Stormtroopocat</strong></figcaption>
+      <figcaption>
+        <p><span>Figure 1</span>: <em>The</em> <strong>Stormtroopocat</strong></p>
+      </figcaption>
     </figure>
     <hr class="list-of-figures" />
     <h2 id="list-of-figures">List of Figures</h2>
