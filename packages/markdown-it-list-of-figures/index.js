@@ -3,10 +3,10 @@ const Token = require("markdown-it/lib/token");
 
 const list_of_figures = (md, opts) => {
   md.inline.ruler.after("text", "figure_citation", figure_citation_rule(opts));
+  md.renderer.rules.figure_citation = figure_citation_renderer(opts);
   md.block.ruler.before("fence", "figcaption", figcaption_rule(opts), {
     alt: ["paragraph", "reference", "blockquote", "list"],
   });
-  md.renderer.rules.figure_citation = figure_citation_renderer(opts);
   md.core.ruler.after("inline", "figure", figure_rule(opts));
   md.core.ruler.after("figure", "figcaption_tail", figcaption_tail_rule(opts));
   md.core.ruler.before("smartquotes", "figure_list", figure_list_rule(opts));
