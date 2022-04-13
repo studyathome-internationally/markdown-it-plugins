@@ -31,7 +31,9 @@ describe("HTML", () => {
             </tr>
           </tbody>
         </table>
-        <figcaption>Table 1: Client overview</figcaption>
+        <figcaption>
+          <p><span>Table 1</span>: Client overview</p>
+        </figcaption>
       </figure>
       <hr class="list-of-tables" />
       <h2 id="list-of-tables">List of Tables</h2>
@@ -69,7 +71,9 @@ describe("HTML", () => {
             </tr>
           </tbody>
         </table>
-        <figcaption>Table 1: Client overview</figcaption>
+        <figcaption>
+          <p><span>Table 1</span>: Client overview</p>
+        </figcaption>
       </figure>
       <hr class="list-of-tables" />
       <h2 id="list-of-tables">List of Tables</h2>

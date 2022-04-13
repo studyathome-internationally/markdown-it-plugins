@@ -31,7 +31,9 @@ describe("basic functionality", () => {
             </tr>
           </tbody>
         </table>
-        <figcaption>Table 1: Client overview</figcaption>
+        <figcaption>
+          <p><span>Table 1</span>: Client overview</p>
+        </figcaption>
       </figure>
       <hr class="list-of-tables" />
       <h2 id="list-of-tables">List of Tables</h2>
@@ -69,7 +71,9 @@ describe("basic functionality", () => {
             </tr>
           </tbody>
         </table>
-        <figcaption>Table 1: Client <strong>overview</strong></figcaption>
+        <figcaption>
+          <p><span>Table 1</span>: Client <strong>overview</strong></p>
+        </figcaption>
       </figure>
       <hr class="list-of-tables" />
       <h2 id="list-of-tables">List of Tables</h2>
@@ -107,7 +111,9 @@ describe("basic functionality", () => {
             </tr>
           </tbody>
         </table>
-        <figcaption>Table 1: <em>Client</em> <strong>overview</strong></figcaption>
+        <figcaption>
+          <p><span>Table 1</span>: <em>Client</em> <strong>overview</strong></p>
+        </figcaption>
       </figure>
       <hr class="list-of-tables" />
       <h2 id="list-of-tables">List of Tables</h2>
@@ -148,7 +154,9 @@ describe("basic functionality", () => {
                 </tr>
               </tbody>
             </table>
-            <figcaption>Table 1: Client overview</figcaption>
+            <figcaption>
+              <p><span>Table 1</span>: Client overview</p>
+            </figcaption>
           </figure>
         </li>
         <li>
