@@ -1,6 +1,6 @@
 {
   "name": "markdown-it-list-of-figures",
-  "version": "0.0.1",
+  "version": "0.0.2-alpha.7+279d8e1.0",
   "description": "MarkdownIt Plugin for list of figures",
   "keywords": [
     "markdown",
