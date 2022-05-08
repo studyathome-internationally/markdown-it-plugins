@@ -314,14 +314,24 @@ function createAuthors(token, level, bibEntry) {
   level = injectLinkOpen(token, getBibField(bibEntry, "authorurl"), { level });
 
   for (const [idx, author] of getBibField(bibEntry, "author").entries()) {
-    const { given, family } = author;
+    const { prefix, given, family } = author;
+    if (prefix) {
+      level = injectFieldChunks(token, prefix, { level });
+    }
     if (given) {
+      if (prefix) {
+        let tokenChild = new Token("text", "", 0);
+        tokenChild.content = " ";
+        token.children.push(tokenChild);
+      }
       level = injectFieldChunks(token, given, { level });
     }
     if (family) {
-      let tokenChild = new Token("text", "", 0);
-      tokenChild.content = " ";
-      token.children.push(tokenChild);
+      if (given || prefix) {
+        let tokenChild = new Token("text", "", 0);
+        tokenChild.content = " ";
+        token.children.push(tokenChild);
+      }
 
       level = injectFieldChunks(token, family, { level });
     }
