@@ -1,4 +1,4 @@
-# `markdown-it-math-jax`
+# `markdown-it-mathjax-a11y`
 
 > TODO: description
 
